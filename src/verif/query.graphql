@@ -1,0 +1,40 @@
+query Resolver($names: [name!]!, $sources: [Int!]) { nameResolver(names: $names,
+		preferredDataSourceIds: $sources,
+		advancedResolution: true
+    bestMatchOnly: true) {
+    responses {
+      total
+      suppliedInput
+      qualitySummary
+      matchedDataSources
+      results {
+				name { id value }
+				canonicalName { valueRanked }
+        taxonId
+				classification { path pathRanks pathIds }
+        dataSource { id title }
+        acceptedName { name { value } }
+        synonym
+        matchType {
+					kind
+					verbatimEditDistance
+					stemEditDistance
+				}
+      }
+      preferredResults {
+				name { id value }
+				canonicalName { valueRanked }
+        taxonId
+				classification { path pathRanks pathIds }
+        dataSource { id title }
+        acceptedName { name { value } }
+        synonym
+        matchType {
+					kind
+					verbatimEditDistance
+					stemEditDistance
+				}
+      }
+    }
+  }
+}
