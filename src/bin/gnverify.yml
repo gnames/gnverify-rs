@@ -1,0 +1,10 @@
+name: gnverify
+version: 0.1.0
+about: Verifies scientific names agains many sources.
+args:
+    - INPUT:
+        help: Sets a name-string or file to use
+        index: 1
+    - sources:
+        short: s
+        help: Important data-sources
