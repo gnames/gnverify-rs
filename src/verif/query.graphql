@@ -4,6 +4,7 @@ query Resolver($names: [name!]!, $sources: [Int!]) { nameResolver(names: $names,
     bestMatchOnly: true) {
     responses {
       total
+      suppliedId
       suppliedInput
       qualitySummary
       matchedDataSources

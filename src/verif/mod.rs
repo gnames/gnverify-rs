@@ -1,5 +1,13 @@
-mod remote;
-mod verification;
+pub mod output;
+pub mod remote;
 
-pub use verification::Input;
-pub use verification::Verification;
+pub use output::Output;
+pub type Verified = remote::resolver::ResolverNameResolverResponses;
+pub type VerifiedData = remote::resolver::ResolverNameResolverResponsesResults;
+pub type VerifiedPreferredData = remote::resolver::ResolverNameResolverResponsesPreferredResults;
+
+#[derive(Debug, Default)]
+pub struct Input {
+    pub id: Option<String>,
+    pub name: String,
+}

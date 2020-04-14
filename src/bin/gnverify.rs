@@ -28,11 +28,14 @@ fn main() {
                 }
             }
         } else {
-            let gnv = gnverify::GNVerify::new().set_sources(sources);
-            let _res = gnv.verify(&vec![gnverify::Input {
-                id: None,
-                name: input.to_string(),
-            }]);
+            let res = gnverify::verify_and_format(
+                &vec![gnverify::Input {
+                    id: None,
+                    name: input.to_string(),
+                }],
+                &sources,
+            );
+            print!("{}", res);
         }
     } else {
         app.print_long_help().unwrap();
@@ -69,8 +72,8 @@ fn verify_file(path: &str, sources: Option<Vec<i64>>) -> io::Result<()> {
             }
         };
     }
-    let gnv = gnverify::GNVerify::new().set_sources(sources);
-    let _res = gnv.verify(&inputs);
+    let res = gnverify::verify_and_format(&inputs, &sources);
+    print!("{}", res);
     Ok(())
 }
 

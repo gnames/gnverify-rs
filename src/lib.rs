@@ -1,26 +1,38 @@
 mod verif;
 
+use serde_json;
+pub use verif::output::Output;
 pub use verif::Input;
-use verif::Verification;
+use verif::{remote, Verified};
 
-#[derive(Default)]
-pub struct GNVerify {
-    sources: Option<Vec<i64>>,
+pub fn verify(inputs: &Vec<Input>, sources: &Option<Vec<i64>>) -> Vec<Output> {
+    let mut retries = 0;
+    let outputs: Vec<Output> = Vec::with_capacity(inputs.len());
+    loop {
+        match remote::verify(inputs, sources) {
+            Ok(resolved) => {
+                // println!("{:#?}", resolved.name_resolver.responses);
+                return process_outputs(outputs, resolved.name_resolver.responses, retries);
+            }
+            Err(_err) => {
+                if retries < 3 {
+                    retries += 1;
+                } else {
+                    return outputs;
+                }
+            }
+        };
+    }
 }
 
-impl GNVerify {
-    pub fn new() -> Self {
-        GNVerify {
-            ..Default::default()
-        }
-    }
+pub fn verify_and_format(inputs: &Vec<Input>, sources: &Option<Vec<i64>>) -> String {
+    let outputs = verify(inputs, sources);
+    format!("{}", serde_json::to_string_pretty(&outputs).unwrap())
+}
 
-    pub fn set_sources(mut self, s: Option<Vec<i64>>) -> Self {
-        self.sources = s;
-        self
+fn process_outputs(mut outputs: Vec<Output>, results: Vec<Verified>, retries: i64) -> Vec<Output> {
+    for item in results {
+        outputs.push(Output::new(item, retries))
     }
-
-    pub fn verify(&self, items: &Vec<Input>) -> Verification {
-        Verification::new(items, &self.sources)
-    }
+    outputs
 }
