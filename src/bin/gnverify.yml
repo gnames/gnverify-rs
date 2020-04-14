@@ -1,10 +1,13 @@
 name: gnverify
-version: 0.1.0
 about: Verifies scientific names agains many sources.
 args:
     - INPUT:
-        help: Sets a name-string or file to use
-        index: 1
+        help: A name-string or file to use
     - sources:
         short: s
-        help: Important data-sources
+        long: sources
+        help: >
+          IDs of important data-sources to verify against (ex "1,11").
+
+          To find IDs refer to "https://resolver.globalnames.org/resources".
+        takes_value: true

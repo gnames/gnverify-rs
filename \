@@ -11,8 +11,7 @@ fn main() {
     use clap::App;
     // The YAML file is found relative to the current file, similar to how modules are found
     let yaml = load_yaml!("gnverify.yml");
-    let mut app = App::from_yaml(yaml).version(crate_version!());
-    let matches = app.clone().get_matches();
+    let matches = App::from_yaml(yaml).version(crate_version!()).get_matches();
 
     if let Some(ref input) = matches.value_of("INPUT") {
         if let Some(srs) = matches.value_of("sources") {
@@ -30,7 +29,7 @@ fn main() {
             println!("{}", input);
         }
     } else {
-        app.print_long_help().unwrap();
+        println!("NO INPUT");
     }
 }
 
@@ -48,14 +47,12 @@ fn verify_file(path: &str) -> io::Result<()> {
 fn parse_sources(sources: &str) -> Vec<u32> {
     let mut res: Vec<u32> = Vec::new();
     for v in sources.split(',') {
-        let source = match v.trim().parse::<u32>() {
+        let source = match(v.parse::<u32>()){
             Ok(i) => i,
-            Err(err) => {
-                print!("Cannot convert source arg '{}' to integer: {}\n", v, err);
-                process::exit(1);
-            }
-        };
+            Err(err) => panic!("Cannot convert {} to integer: {}", s, err),
+        }
         res.push(source)
     }
+
     res
 }
