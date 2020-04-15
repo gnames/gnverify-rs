@@ -1,3 +1,4 @@
+use super::OutputCSV;
 use super::{Verified, VerifiedData, VerifiedPreferredData};
 use serde::{Serialize, Serializer};
 
@@ -12,8 +13,10 @@ pub struct Output {
     pub id: Option<String>,
     pub name: String,
     pub match_type: MatchType,
+    #[serde(skip_serializing_if = "is_zero")]
     pub data_sources_num: i64,
-    pub data_source_curation: CurationType,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub data_source_curation: Option<CurationType>,
     pub retries: i64,
     pub error: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -132,13 +135,68 @@ impl Output {
             preferred_results,
         }
     }
+
+    pub fn to_csv(&self) -> Vec<OutputCSV> {
+        let mut len = 1;
+        if self.preferred_results.is_some() {
+            len += self.preferred_results.as_ref().unwrap().len();
+        }
+        let mut res: Vec<OutputCSV> = Vec::with_capacity(len);
+        let mut o_csv = OutputCSV {
+            kind: "BestMatch".to_owned(),
+            supplied_id: self.id.clone(),
+            scientific_name: self.name.clone(),
+            ..Default::default()
+        };
+        if let Some(best) = self.best_result.as_ref() {
+            o_csv.matched_name = Some(best.matched_name.clone());
+            o_csv.matched_canonical = best.matched_canonical.clone();
+            o_csv.taxon_id = Some(best.taxon_id.clone());
+            o_csv.current_name = best.current_name.clone();
+            o_csv.edit_distance = Some(best.edit_distance);
+            o_csv.data_source_id = Some(best.data_source_id);
+            o_csv.data_source_title = Some(trim(best.data_source_title.clone()));
+            o_csv.classification_path = best.classification_path.clone();
+            o_csv.match_type = best.match_type.clone();
+        };
+        res.push(o_csv);
+        if let Some(pref) = self.preferred_results.as_ref() {
+            for p in pref {
+                let o_csv = OutputCSV {
+                    kind: "PreferredMatch".to_owned(),
+                    supplied_id: self.id.clone(),
+                    scientific_name: self.name.clone(),
+                    matched_name: Some(p.matched_name.clone()),
+                    matched_canonical: p.matched_canonical.clone(),
+                    taxon_id: Some(p.taxon_id.clone()),
+                    current_name: p.current_name.clone(),
+                    edit_distance: Some(p.edit_distance),
+                    data_source_id: Some(p.data_source_id),
+                    data_source_title: Some(trim(p.data_source_title.clone())),
+                    classification_path: p.classification_path.clone(),
+                    match_type: p.match_type.clone(),
+                };
+                res.push(o_csv);
+            }
+        }
+        res
+    }
 }
 
-fn get_curation(cur: &str) -> CurationType {
+fn trim(s: String) -> String {
+    let limit = 40;
+    if s.len() <= limit {
+        return s;
+    }
+    format!("{}...", s[0..limit].to_owned())
+}
+
+fn get_curation(cur: &str) -> Option<CurationType> {
     match cur {
-        "HasCuratedSources" => CurationType::Curated,
-        "HasAutoCuratedSources" => CurationType::AutoCurated,
-        _ => CurationType::NotCurated,
+        "HasCuratedSources" => Some(CurationType::Curated),
+        "HasAutoCuratedSources" => Some(CurationType::AutoCurated),
+        "Unknown" => Some(CurationType::NotCurated),
+        _ => None,
     }
 }
 
@@ -208,4 +266,8 @@ fn get_match_type(match_type: &str) -> MatchType {
         "FuzzyPartialMatch" => MatchType::PartialFuzzy,
         _ => MatchType::NoMatch,
     }
+}
+
+fn is_zero(i: &i64) -> bool {
+    *i == 0
 }

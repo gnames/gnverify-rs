@@ -1,4 +1,5 @@
 use clap::crate_version;
+use gnverify::{Format, GNVerify};
 use std::fs::File;
 use std::io;
 use std::path;
@@ -13,14 +14,26 @@ fn main() {
     let yaml = load_yaml!("gnverify.yml");
     let mut app = App::from_yaml(yaml).version(crate_version!());
     let matches = app.clone().get_matches();
-    let mut sources: Option<Vec<i64>> = None;
-
+    let mut gnv = GNVerify::new();
     if let Some(ref input) = matches.value_of("INPUT") {
+        if let Some(_) = matches.value_of("preferred_only") {
+            gnv.preferred_only();
+        }
+        if let Some(format_str) = matches.value_of("format") {
+            match Format::new(format_str) {
+                Ok(format) => {
+                    gnv.format(format);
+                }
+                Err(err) => {
+                    print!("using default format {}: {}", gnv.format.to_string(), err);
+                }
+            }
+        }
         if let Some(srs) = matches.value_of("sources") {
-            sources = Some(parse_sources(srs));
+            gnv.sources(parse_sources(srs));
         }
         if path::Path::new(input).exists() {
-            match verify_file(input, sources) {
+            match verify_file(gnv, input) {
                 Ok(_) => process::exit(0),
                 Err(err) => {
                     println!("{:#?}", err);
@@ -28,21 +41,17 @@ fn main() {
                 }
             }
         } else {
-            let res = gnverify::verify_and_format(
-                &vec![gnverify::Input {
-                    id: None,
-                    name: input.to_string(),
-                }],
-                &sources,
-            );
-            print!("{}", res);
+            gnv.verify_and_format(&vec![gnverify::Input {
+                id: None,
+                name: input.to_string(),
+            }]);
         }
     } else {
         app.print_long_help().unwrap();
     }
 }
 
-fn verify_file(path: &str, sources: Option<Vec<i64>>) -> io::Result<()> {
+fn verify_file(gnv: GNVerify, path: &str) -> io::Result<()> {
     let mut inputs: Vec<gnverify::Input> = Vec::new();
     let f = File::open(path)?;
     let mut rdr = csv::ReaderBuilder::new().delimiter(b'\t').from_reader(f);
@@ -72,8 +81,7 @@ fn verify_file(path: &str, sources: Option<Vec<i64>>) -> io::Result<()> {
             }
         };
     }
-    let res = gnverify::verify_and_format(&inputs, &sources);
-    print!("{}", res);
+    gnv.verify_and_format(&inputs);
     Ok(())
 }
 

@@ -2,12 +2,50 @@ name: gnverify
 about: Verifies scientific names agains many sources.
 args:
     - INPUT:
-        help: A name-string or file to use
+        help: A name-string or file to verify
     - sources:
         short: s
         long: sources
         help: >
           IDs of important data-sources to verify against (ex "1,11").
 
+          If sources are set and there are matches to their data,
+
+          such matches are returned in "preferred_result" results.
+
           To find IDs refer to "https://resolver.globalnames.org/resources".
+
+          1 - Catalogue of Life
+
+          3 - ITIS
+
+          4 - NCBI
+
+          9 - WoRMS
+
+          11 - GBIF
+
+          12 - Encyclopedia of Life
+
+          167 - IPNI
+
+          170 - Arctos
+
+          181 - IRMNG
         takes_value: true
+    - format:
+        short: f
+        long: format
+        takes_value: true
+        help: >
+          Format of the output: "compact", "pretty", "csv".
+
+          compact: compact JSON,
+
+          pretty: pretty JSON,
+
+          csv: CSV (DEFAULT)
+    - preferred_only:
+        short: p
+        long: preferred_only
+        help: Ignores best match, returns only preferred results (if any).
