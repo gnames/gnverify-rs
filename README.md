@@ -1,7 +1,7 @@
 # gnverify
 
 Takes a name or a list of names and verifies them against a variety of
-biodiversity
+biodiversity [Data Sources][data_source_ids]
 
 
 <!-- vim-markdown-toc GFM -->
