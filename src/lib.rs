@@ -41,7 +41,6 @@ impl GNVerify {
         loop {
             match remote::verify(inputs, &self.sources) {
                 Ok(resolved) => {
-                    // println!("{:#?}", resolved.name_resolver.responses);
                     return self.process_outputs(resolved.name_resolver.responses, retries);
                 }
                 Err(err) => {
@@ -59,8 +58,8 @@ impl GNVerify {
     pub fn verify_and_format(&self, inputs: &Vec<Input>) {
         let outputs = self.verify(inputs);
         match self.format {
-            Format::Pretty => print!("{}", serde_json::to_string_pretty(&outputs).unwrap()),
-            Format::Compact => print!("{}", serde_json::to_string(&outputs).unwrap()),
+            Format::Pretty => self.write_json(outputs, true),
+            Format::Compact => self.write_json(outputs, false),
             _ => self.write_csv(outputs).unwrap(),
         }
     }
@@ -70,7 +69,6 @@ impl GNVerify {
         for item in results {
             outputs.push(Output::new(item, retries, self.preferred_only))
         }
-        println!("{:#?}", self);
         outputs
     }
 
@@ -87,6 +85,16 @@ impl GNVerify {
             outputs.push(output);
         }
         outputs
+    }
+
+    fn write_json(&self, outputs: Vec<Output>, pretty: bool) {
+        for o in outputs {
+            if pretty {
+                print!("{}\n", serde_json::to_string_pretty(&o).unwrap());
+            } else {
+                print!("{}\n", serde_json::to_string(&o).unwrap());
+            }
+        }
     }
 
     fn write_csv(&self, outputs: Vec<Output>) -> anyhow::Result<()> {

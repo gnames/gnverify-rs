@@ -35,6 +35,8 @@ args:
 
           170 - Arctos
 
+          172 - PaleoBioDB
+
           181 - IRMNG
         takes_value: true
     - format:

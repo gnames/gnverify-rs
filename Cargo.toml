@@ -16,6 +16,8 @@ csv = "1"
 thiserror = "1"
 strum = "0.18"
 strum_macros = "0.18"
+atty = "*"
+same-file = "*"
 
 [dependencies.clap]
 version = "2"
