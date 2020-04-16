@@ -1,5 +1,7 @@
 [package]
 name = "gnverify"
+description = "Takes a name or a list of names and verifies them against a variety of biodiversity Data Sources"
+license = "MIT"
 version = "0.1.0"
 authors = ["Dmitry Mozzherin <dmozzherin@gmail.com>"]
 edition = "2018"

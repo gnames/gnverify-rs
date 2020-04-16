@@ -186,4 +186,4 @@ for further details.
 [test directory]: https://github.com/gnames/gnverify/tree/master/testdata
 [data_source_ids]: http://resolver.globalnames.org/data_sources
 [dimus]: https://github.com/dimus
-[license]: https://github.com/GlobalNamesArchitecture/biodiversity/blob/master/LICENSE
+[license]: https://github.com/gnames/gnverify/blob/master/LICENSE
