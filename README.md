@@ -1,7 +1,7 @@
 # gnverify
 
-Takes a name or a list of names and verifies them against a variety of biodiversity
-databases. [List of Data Sources][data_source_ids]
+Takes a name or a list of names and verifies them against a variety of
+biodiversity
 
 
 <!-- vim-markdown-toc GFM -->
@@ -64,16 +64,17 @@ Download the latest release from [github], untar, and install binary somewhere
 in your path.
 
 ```bash
-tar xvf gnverify-linus-0.1.0.tar.xz
+tar xvf gnverify-linux-0.1.0.tar.xz
 sudo mv gnverify /usr/local/bin
 ```
 
 ## Usage
 
-``gnverify`` takes one name-string or a tab-delimited file as an argument,
-sends a query with these data to [remote ``gnindex`` server][gnindex] to match
-the name-strigs against many different biodiversity databases and returns
-results to STDOUT either in JSON or CSV format.
+``gnverify`` takes one name-string or a tab-delimited file with many
+name-strings as an argument, sends a query with these data to [remote
+``gnindex`` server][gnindex] to match the name-strigs against many different
+biodiversity databases and returns results to STDOUT either in JSON or CSV
+format.
 
 ### One name-string
 
@@ -86,7 +87,7 @@ gnverify "Monohamus galloprovincialis"
 ```bash
 gnverify /path/to/names.tsv
 ```
-The app assumes that file either contains a simple list of names, one per line,
+The app assumes that a file either contains a simple list of names, one per line,
 of a tab-separated list where the first column is an `id` associated with a
 name_string, and the second is the name-string itself. You can find examples
 of such files in the project's [test directory].
