@@ -16,7 +16,7 @@ fn main() {
     let matches = app.clone().get_matches();
     let mut gnv = GNVerify::new();
     if let Some(ref input) = matches.value_of("INPUT") {
-        if let Some(_) = matches.value_of("preferred_only") {
+        if matches.is_present("preferred_only") {
             gnv.preferred_only();
         }
         if let Some(format_str) = matches.value_of("format") {

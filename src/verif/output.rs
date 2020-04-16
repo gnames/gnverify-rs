@@ -105,13 +105,15 @@ impl Serialize for CurationType {
 }
 
 impl Output {
-    pub fn new<'b>(item: Verified, retries: i64) -> Self {
+    pub fn new<'b>(item: Verified, retries: i64, preferred_only: bool) -> Self {
         let mut best_result: Option<ResultData> = None;
         let mut match_type = MatchType::NoMatch;
         if item.results.len() > 0 {
             let best_match = item.results[0].to_result_data();
             match_type = best_match.match_type.clone();
-            best_result = Some(best_match);
+            if !preferred_only {
+                best_result = Some(best_match);
+            }
         };
         let mut preferred_results: Option<Vec<ResultData>> = None;
         let mut pref_res_tmp: Vec<ResultData> = Vec::with_capacity(item.preferred_results.len());
@@ -136,14 +138,18 @@ impl Output {
         }
     }
 
-    pub fn to_csv(&self) -> Vec<OutputCSV> {
+    pub fn to_csv(&self, preferred_only: bool) -> Vec<OutputCSV> {
         let mut len = 1;
         if self.preferred_results.is_some() {
             len += self.preferred_results.as_ref().unwrap().len();
         }
+        let mut kind = "BestMatch".to_owned();
+        if preferred_only {
+            kind = "PreferredMatch".to_owned();
+        }
         let mut res: Vec<OutputCSV> = Vec::with_capacity(len);
         let mut o_csv = OutputCSV {
-            kind: "BestMatch".to_owned(),
+            kind,
             supplied_id: self.id.clone(),
             scientific_name: self.name.clone(),
             ..Default::default()
@@ -159,7 +165,9 @@ impl Output {
             o_csv.classification_path = best.classification_path.clone();
             o_csv.match_type = best.match_type.clone();
         };
-        res.push(o_csv);
+        if !preferred_only || self.preferred_results.is_none() {
+            res.push(o_csv);
+        }
         if let Some(pref) = self.preferred_results.as_ref() {
             for p in pref {
                 let o_csv = OutputCSV {
