@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## [v0.1.1]
+
+- Fix: make compatible to comiple on Windows
+
 ## [v0.1.0]
 
 - Add [#6]: work with stdin as input if no other input is given.
