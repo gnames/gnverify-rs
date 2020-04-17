@@ -1,8 +1,9 @@
 [package]
 name = "gnverify"
-description = "Takes a name or a list of names and verifies them against a variety of biodiversity Data Sources"
+description = "Takes a scientific name or a list of names and verifies them against a variety of biodiversity Data Sources"
+readme = "README.md"
 license = "MIT"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Dmitry Mozzherin <dmozzherin@gmail.com>"]
 edition = "2018"
 
@@ -20,6 +21,7 @@ strum = "0.18"
 strum_macros = "0.18"
 atty = "0.2"
 same-file = "1"
+winapi_util = "0.1.4"
 
 [dependencies.clap]
 version = "2"
