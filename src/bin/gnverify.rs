@@ -1,9 +1,11 @@
 use clap::crate_version;
+use crossbeam_channel::{bounded, Receiver, Sender};
 use gnverify::{Format, GNVerify};
 use std::fs::File;
-use std::io;
+use std::io::{self, Read};
 use std::path;
 use std::process;
+use std::thread;
 
 #[macro_use]
 extern crate clap;
@@ -33,7 +35,8 @@ fn main() {
     }
     if let Some(ref input) = matches.value_of("INPUT") {
         if path::Path::new(input).exists() {
-            match verify_file(gnv, input) {
+            let f = File::open(input).unwrap();
+            match verify_file(gnv, f) {
                 Ok(_) => process::exit(0),
                 Err(err) => {
                     println!("{:#?}", err);
@@ -47,7 +50,7 @@ fn main() {
             }]);
         }
     } else if is_readable_stdin() {
-        match verify_stdin(gnv) {
+        match verify_file(gnv, io::stdin()) {
             Ok(_) => process::exit(0),
             Err(err) => {
                 println!("{:#?}", err);
@@ -59,73 +62,81 @@ fn main() {
     }
 }
 
-fn verify_stdin(gnv: GNVerify) -> io::Result<()> {
-    let mut inputs: Vec<gnverify::Input> = Vec::new();
-    let mut rdr = csv::ReaderBuilder::new()
+fn verify_file<'a, R>(gnv: GNVerify, r: R) -> io::Result<()>
+where
+    R: Read,
+{
+    let (in_s, in_r) = bounded(0);
+    let (out_s, out_r) = bounded(0);
+    let (done_s, done_r) = bounded::<bool>(0);
+    let gnv_clone1 = gnv.clone();
+    let gnv_clone2 = gnv.clone();
+    let batch_size = gnv.batch_size;
+    thread::spawn(move || gnv_clone1.verify_stream(in_r, out_s));
+    thread::spawn(move || process_outputs(gnv_clone2, out_r, done_s));
+
+    let rdr = csv::ReaderBuilder::new()
         .delimiter(b'\t')
-        .from_reader(io::stdin());
-    let mut fields_num = 0;
-    for result in rdr.records() {
-        let record = result?;
-        if fields_num == 0 {
-            fields_num = record.len();
-        }
-        match fields_num {
-            0 => (),
-            1 => {
-                if record.len() > 0 {
-                    inputs.push(gnverify::Input {
-                        id: None,
-                        name: record[0].to_owned(),
-                    });
-                }
-            }
-            _ => {
-                if record.len() > 1 {
-                    inputs.push(gnverify::Input {
-                        id: Some(record[0].to_owned()),
-                        name: record[1].to_owned(),
-                    });
-                }
-            }
-        };
-    }
-    gnv.verify_and_format(&inputs);
+        .has_headers(false)
+        .from_reader(r);
+
+    prepare_inputs(rdr, in_s, batch_size);
+    done_r.recv().unwrap();
     Ok(())
 }
 
-fn verify_file(gnv: GNVerify, path: &str) -> io::Result<()> {
-    let mut inputs: Vec<gnverify::Input> = Vec::new();
-    let f = File::open(path)?;
-    let mut rdr = csv::ReaderBuilder::new().delimiter(b'\t').from_reader(f);
+fn process_outputs(
+    gnv: gnverify::GNVerify,
+    out_r: Receiver<Vec<gnverify::Output>>,
+    done_s: Sender<bool>,
+) {
+    let mut is_first = true;
+    for outputs in out_r {
+        gnv.format_outputs(outputs, is_first);
+        is_first = false;
+    }
+    done_s.send(true).unwrap();
+}
+
+fn prepare_inputs<R>(rdr: csv::Reader<R>, in_s: Sender<Vec<gnverify::Input>>, batch_size: usize)
+where
+    R: Read,
+{
+    let mut inputs: Vec<gnverify::Input> = Vec::with_capacity(batch_size);
     let mut fields_num = 0;
-    for result in rdr.records() {
-        let record = result?;
-        if fields_num == 0 {
-            fields_num = record.len();
+
+    for result in rdr.into_records() {
+        if inputs.len() == batch_size {
+            in_s.send(inputs).unwrap();
+            inputs = Vec::with_capacity(batch_size);
         }
-        match fields_num {
-            0 => (),
-            1 => {
-                if record.len() > 0 {
-                    inputs.push(gnverify::Input {
-                        id: None,
-                        name: record[0].to_owned(),
-                    });
-                }
+        if let Ok(record) = result {
+            if fields_num == 0 {
+                fields_num = record.len();
             }
-            _ => {
-                if record.len() > 1 {
-                    inputs.push(gnverify::Input {
-                        id: Some(record[0].to_owned()),
-                        name: record[1].to_owned(),
-                    });
+            match fields_num {
+                0 => (),
+                1 => {
+                    if record.len() > 0 {
+                        inputs.push(gnverify::Input {
+                            id: None,
+                            name: record[0].to_owned(),
+                        });
+                    }
                 }
-            }
+                _ => {
+                    if record.len() > 1 {
+                        inputs.push(gnverify::Input {
+                            id: Some(record[0].to_owned()),
+                            name: record[1].to_owned(),
+                        });
+                    }
+                }
+            };
         };
     }
-    gnv.verify_and_format(&inputs);
-    Ok(())
+    in_s.send(inputs).unwrap();
+    drop(in_s);
 }
 
 fn parse_sources(sources: &str) -> Vec<i64> {

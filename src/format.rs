@@ -1,7 +1,7 @@
 use super::GNVerifyError;
 use strum_macros::Display;
 
-#[derive(Debug, Display)]
+#[derive(Debug, Display, Clone)]
 pub enum Format {
     CSV,
     Compact,

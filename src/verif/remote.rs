@@ -25,13 +25,11 @@ pub fn verify(inputs: &Vec<Input>, sources: &Option<Vec<i64>>) -> Result<resolve
         sources: sources.to_owned(),
     });
     let client = reqwest::Client::new();
-
     let mut res = client.post(GN_INDEX_URL).json(&q).send()?;
-
     let response_body: Response<resolver::ResponseData> = res.json()?;
 
     if let Some(errors) = response_body.errors {
-        println!("there are errors:");
+        println!("Remove verification returned some errors:");
 
         for error in &errors {
             println!("{:?}", error);
