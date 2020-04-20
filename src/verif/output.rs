@@ -1,59 +1,102 @@
 use super::OutputCSV;
 use super::{Verified, VerifiedData, VerifiedPreferredData};
 use serde::{Serialize, Serializer};
+use strum_macros::Display;
 
 trait ToResultData {
     fn to_result_data(&self) -> ResultData;
 }
 
+/// A serializabe to JSON output format from verification process by
+/// gnindex server
 #[derive(Serialize, Debug, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct Output {
+    /// Optional supplied by user ID attached to a name-string.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
+    /// Name-string supplied by user for verification.
     pub name: String,
+    /// Match type of the best result after verification attempt.
     pub match_type: MatchType,
+    /// The number of Data Sources that could be matched to the name-string.
     #[serde(skip_serializing_if = "is_zero")]
     pub data_sources_num: i64,
+    /// Indicates if the name was matched to Data Sources with human or
+    /// automatic curation of the data.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub data_source_curation: Option<CurationType>,
+    /// How many retries were needed to send the name-string to gnindex
+    /// server.
     pub retries: i64,
+    /// Contains an error string (if any) after verification attempt.
     pub error: Option<String>,
+    /// The apparent best match of the name-string to gnindex data sets.
+    /// The best match is determined by a score that takes in account if
+    /// the match was exact, partial, or fuzzy, if it was a match of uninomial,
+    /// binomial, or multinomial, if there authors matched in the name-string
+    /// and gnindex data.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub best_result: Option<ResultData>,
+    /// Contains all matches found in the user-specified Data Sources.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub preferred_results: Option<Vec<ResultData>>,
 }
 
+/// Matching result from a Data Source.
 #[derive(Serialize, Debug, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct ResultData {
+    /// Match type returned by the verification attempt.
     match_type: MatchType,
+    /// Data Source ID from the gnindex database.
     data_source_id: i64,
+    /// Title of the matched Data Source.
     data_source_title: String,
+    /// Taxon_ID of the record in the Data Source.
     taxon_id: String,
+    /// A name that matched the supplied name-string.
     matched_name: String,
     #[serde(skip_serializing_if = "Option::is_none")]
+    /// A canonical form of the matched name.
     matched_canonical: Option<String>,
+    /// Currently accepted name for the taxon according to the Data Source.
     #[serde(skip_serializing_if = "Option::is_none")]
     current_name: Option<String>,
+    /// Indicates if the matched name is a synonym.
     synonym: bool,
+    /// Classification path for the matched taxon (if supported).
     #[serde(skip_serializing_if = "Option::is_none")]
     classification_path: Option<String>,
+    /// Classification ranks of the classification path.
     #[serde(skip_serializing_if = "Option::is_none")]
     classification_rank: Option<String>,
+    /// Taxon IDs of every path element.
     #[serde(skip_serializing_if = "Option::is_none")]
     classification_ids: Option<String>,
+    /// Edit distance for Levenshtein algorithm. It is > 0 if
+    /// the match type is  Fuzzy.
     edit_distance: i64,
+    /// Edit distance of stemmed version of the name-string. Stem version
+    /// does not include suffixes of specific and infraspecific epithets.
     stem_edit_distance: i64,
 }
 
-#[derive(Debug, Clone)]
+/// Describes a match type of a successful verification attempt.
+#[derive(Debug, Display, Clone)]
 pub enum MatchType {
+    /// Supplied name-string did not match anything in a Data Source.
     NoMatch,
+    /// Exact match of either whole name-string to a record in the Data Source
+    /// or exact match of the canonical form.
     Exact,
+    /// Fuzzy match to a canonical form of a record in the Data Source.
     Fuzzy,
+    /// If full canonical form could not be matched, but ommitting the last or
+    /// middle elements of canonical form produced an exact match.
     PartialExact,
+    /// If full canonical form could not be matched, but ommitting the last or
+    /// middle elements of canonical form produced a fuzzy match.
     PartialFuzzy,
 }
 
@@ -78,7 +121,7 @@ impl Serialize for MatchType {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Display)]
 pub enum CurationType {
     NotCurated,
     AutoCurated,
@@ -105,6 +148,8 @@ impl Serialize for CurationType {
 }
 
 impl Output {
+    /// Creates a new output using verification data returned from gnindex
+    /// server.
     pub fn new<'b>(item: Verified, retries: i64, preferred_only: bool) -> Self {
         let mut best_result: Option<ResultData> = None;
         let mut match_type = MatchType::NoMatch;
@@ -138,6 +183,7 @@ impl Output {
         }
     }
 
+    /// Converts output data to a structure for CSV format.
     pub fn to_csv(&self, preferred_only: bool) -> Vec<OutputCSV> {
         let mut len = 1;
         if self.preferred_results.is_some() {

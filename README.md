@@ -9,7 +9,8 @@ biodiversity [Data Sources][data_source_ids]
 * [Features](#features)
 * [Installation](#installation)
   * [Compile](#compile)
-  * [Linux](#linux)
+  * [MS Windows](#ms-windows)
+  * [Linux and Mac](#linux-and-mac)
 * [Usage](#usage)
   * [One name-string](#one-name-string)
   * [Many name-strings in a file](#many-name-strings-in-a-file)
@@ -58,13 +59,37 @@ biodiversity [Data Sources][data_source_ids]
 cargo install gnverify
 ```
 
-### Linux
+### MS Windows
+
+Download the latest release from [github], unzip.
+
+One possible way would be to create a default folder for executables and place
+``gnveriry`` there.
+
+Use ``Windows+R`` keys
+combination and type "``cmd``". In the appeared terminal window type:
+
+```cmd
+mkdir C:\Users\your_username\bin
+copy path_to\gnverify.exe C:\Users\your_username\bin
+```
+
+[Add ``C:\Users\your_username\bin`` directory to your ``PATH``][winpath]
+environment variable.
+
+Another, simpler way, would be to use ``cd C:\Users\your_username\bin`` command
+in ``cmd`` terminal window. The ``gnverify`` program then will be automatically
+found by Windows operating system when you run its commands from that
+directory.
+
+### Linux and Mac
 
 Download the latest release from [github], untar, and install binary somewhere
 in your path.
 
 ```bash
 tar xvf gnverify-linux-0.2.0.tar.xz
+# or tar xvf gnverify-mac-0.2.0.tar.gz
 sudo mv gnverify /usr/local/bin
 ```
 
@@ -177,7 +202,7 @@ Authors: [Dmitry Mozzherin][dimus]
 Copyright (c) 2020 Dmitry Mozzherin. See [LICENSE][license]
 for further details.
 
-[github]: https://github.com/gnames/gnverify/releases
+[github]: https://github.com/gnames/gnverify/releases/latest
 [gnindex]: https://index.globalnames.org/
 [Catalogue of Life]: https://catalogueoflife.org/
 [WoRMS]: https://marinespecies.org/
@@ -187,3 +212,4 @@ for further details.
 [data_source_ids]: http://resolver.globalnames.org/data_sources
 [dimus]: https://github.com/dimus
 [license]: https://github.com/gnames/gnverify/blob/master/LICENSE
+[winpath]: https://www.computerhope.com/issues/ch000549.htm

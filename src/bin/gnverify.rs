@@ -7,6 +7,7 @@ use std::io::{self, Read};
 use std::path;
 use std::process;
 use std::thread;
+use std::time::Instant;
 use stderrlog::{self, Timestamp};
 
 #[macro_use]
@@ -111,6 +112,7 @@ where
 {
     let mut inputs: Vec<gnverify::Input> = Vec::with_capacity(batch_size);
     let mut fields_num = 0;
+    let time_start = Instant::now();
 
     for (i, result) in rdr.into_records().enumerate() {
         if inputs.len() == batch_size {
@@ -118,7 +120,9 @@ where
             inputs = Vec::with_capacity(batch_size);
         }
         if (i + 1) % 10_000 == 0 {
-            info!("Processed {} rows", i + 1);
+            let duration = time_start.elapsed().as_secs() as f32;
+            let speed = (i + 1) as f32 / duration;
+            info!("Processed {} rows, {:.0} names/sec", i + 1, speed);
         }
         if let Ok(record) = result {
             if fields_num == 0 {

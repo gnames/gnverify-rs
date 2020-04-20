@@ -1,4 +1,27 @@
+//#![warn(missing_docs)]
+//! Takes a name or a list of names and verifies them against a variety of
+//! biodiversity [Data Sources][data_source_ids]
+//!
+//! ## Example
+//!
+//! ```rust
+//! use gnverify::{GNVerify, Input, MatchType};
+//!
+//! let gnv = GNVerify::new();
+//! let inputs: Vec<Input> = vec![Input{id: None, name: "Homo sapiens".to_owned()}];
+//! let outputs = gnv.verify(&inputs);
+//! assert_eq!(outputs.len(), 1);
+//! if let Some(output) = outputs.iter().next() {
+//!     assert_eq!(output.match_type.to_string(), "Exact".to_owned());
+//! }
+//! ```
+//!
+//! [data_source_ids]: http://resolver.globalnames.org/data_sources
+//!
+
 mod error;
+/// format determines output format for name verification. It can be set to
+/// CSV, JSON, and Pretty JSON.
 pub mod format;
 mod verif;
 
@@ -9,19 +32,32 @@ use log::error;
 use serde_json;
 pub use std::io;
 use std::thread;
-pub use verif::output::Output;
+pub use verif::output::{MatchType, Output};
 pub use verif::Input;
 use verif::{remote, Verified};
 
+/// Keeps configuration parameters and organizes main functions for changing
+/// configuration and performing name-strings verification and formatting of
+/// verification output.
 #[derive(Debug, Default, Clone)]
 pub struct GNVerify {
-    sources: Option<Vec<i64>>,
-    preferred_only: bool,
+    /// list of IDs of Data Sources. Each Data Source is a checklist of scientific names / (e.g
+    /// Encyclopedia of Life, GBIF, Catalogue of Life) and can be curated to a
+    /// degree, automatically curated or not curated. If a name-string has a match to any
+    /// of these sources, the matching result will always be returned in preferred_results
+    /// section of the output.
+    pub sources: Option<Vec<i64>>,
+    /// Normally output would
+    pub preferred_only: bool,
+    /// size of a bach of names sent as a unit for verification to
+    /// gnindex.
     pub batch_size: usize,
+    /// sets format of the final output. It can be CSV, JSON, or Pretty JSON.
     pub format: Format,
 }
 
 impl GNVerify {
+    /// Creates a new instance of GNVerify and sets default values for all fields.
     pub fn new() -> Self {
         GNVerify {
             batch_size: 500,
@@ -29,18 +65,79 @@ impl GNVerify {
         }
     }
 
+    /// Sets sources field. Sources is a list of IDs for data sources. If a
+    /// match found for these data-sources, such data will be always returned
+    /// to the user even if such results are not the best-scored results.
+    ///
+    /// ## Example
+    ///
+    /// ```rust
+    /// use gnverify::GNVerify;
+    ///
+    /// let mut gnv = GNVerify::new();
+    /// assert!(gnv.sources.is_none());
+    /// gnv.sources(vec![1,11,169]);
+    /// assert_eq!(gnv.sources.unwrap()[1], 11_i64);
+    /// ```
     pub fn sources(&mut self, sources: Vec<i64>) {
         self.sources = Some(sources);
     }
 
+    /// Sets preferred_only field to true
+    ///
+    /// ## Example
+    ///
+    /// ```rust
+    /// use gnverify::GNVerify;
+    ///
+    /// let mut gnv = GNVerify::new();
+    /// assert_eq!(gnv.preferred_only, false);
+    /// gnv.preferred_only();
+    /// assert_eq!(gnv.preferred_only, true);
+    /// ```
     pub fn preferred_only(&mut self) {
         self.preferred_only = true;
     }
 
+    /// Sets output format to one of: CSV, JSON, Pretty JSON.
+    ///
+    /// ## Example
+    ///
+    /// ```rust
+    /// use gnverify::{GNVerify, Format};
+    ///
+    /// let mut gnv = GNVerify::new();
+    /// assert_eq!(gnv.format.to_string(), "CSV");
+    /// gnv.format(Format::Pretty);
+    /// assert_eq!(gnv.format.to_string(), "Pretty");
+    /// ```
     pub fn format(&mut self, format: Format) {
         self.format = format;
     }
 
+    /// Takes input channel with name-strings to verify and uses output channel
+    /// to send back results of verification. The input channel is then cloned
+    /// for several workers, so they all send data to gnindex server in parallel.
+    /// There input send name-string in batches and their size is determined by
+    /// batch_size field.
+    ///
+    /// ## Example
+    ///
+    /// ```rust
+    /// use gnverify::{GNVerify, Input};
+    /// use crossbeam_channel::bounded;
+    /// use std::thread;
+    ///
+    /// let mut gnv = GNVerify::new();
+    ///
+    /// let (in_s, in_r) = bounded(0);
+    /// let (out_s, out_r) = bounded(0);
+    /// thread::spawn(move || gnv.clone().verify_stream(in_r, out_s));
+    /// let inputs: Vec<Input> = vec![Input{id: None, name: "Homo sapiens".to_owned()}];
+    /// in_s.send(inputs).unwrap();
+    /// let o = out_r.recv().unwrap();
+    /// assert_eq!(o.iter().next().unwrap().name, "Homo sapiens");
+    /// ```
     pub fn verify_stream(&self, in_r: Receiver<Vec<Input>>, out_s: Sender<Vec<Output>>) {
         for _ in 0..5 {
             let in_r1 = in_r.clone();
@@ -50,13 +147,30 @@ impl GNVerify {
         }
     }
 
-    pub fn verify_worker(&self, in_r: Receiver<Vec<Input>>, in_s: Sender<Vec<Output>>) {
+    fn verify_worker(&self, in_r: Receiver<Vec<Input>>, in_s: Sender<Vec<Output>>) {
         for inputs in in_r {
             let outputs = self.verify(&inputs);
             in_s.send(outputs).unwrap();
         }
     }
 
+    /// Takes as input a vector name-strings and returns back a vector of
+    /// corresponding verification outputs for the name-strings.
+    ///
+    /// ## Example
+    ///
+    /// ```rust
+    /// use gnverify::{GNVerify, Input, MatchType};
+    ///
+    /// let gnv = GNVerify::new();
+    /// let inputs: Vec<Input> = vec![Input{id: None, name: "Homo sapiens".to_owned()}];
+    /// let outputs = gnv.verify(&inputs);
+    /// assert_eq!(outputs.len(), 1);
+    /// if let Some(output) = outputs.iter().next() {
+    ///     assert_eq!(output.match_type.to_string(), "Exact".to_owned());
+    /// }
+    /// ```
+    ///
     pub fn verify(&self, inputs: &Vec<Input>) -> Vec<Output> {
         let mut retries = 0;
         loop {
@@ -77,16 +191,44 @@ impl GNVerify {
         }
     }
 
+    /// Convenience function that takes as an input a vector of name-strings
+    /// and prints out results in desired output format.
+    ///
+    /// ## Example
+    ///
+    /// ```rust
+    /// use gnverify::{GNVerify, Input, MatchType};
+    ///
+    /// let gnv = GNVerify::new();
+    /// let inputs: Vec<Input> = vec![Input{id: None, name: "Homo sapiens".to_owned()}];
+    /// gnv.verify_and_format(&inputs);
+    /// ```
+    ///
     pub fn verify_and_format(&self, inputs: &Vec<Input>) {
         let outputs = self.verify(inputs);
         self.format_outputs(outputs, true);
     }
 
-    pub fn format_outputs(&self, outputs: Vec<Output>, is_first: bool) {
+    /// Takes outputs of name-verification process and prints out the outputs
+    /// in a desired format. It also takes with_headers parameter. If it is
+    /// true, the printed output will have corresponding headers in CSV format.
+    ///
+    /// ## Example
+    ///
+    /// ```rust
+    /// use gnverify::{GNVerify, Input, MatchType};
+    ///
+    /// let gnv = GNVerify::new();
+    /// let inputs: Vec<Input> = vec![Input{id: None, name: "Homo sapiens".to_owned()}];
+    /// let outputs = gnv.verify(&inputs);
+    /// assert_eq!(outputs.len(), 1);
+    /// gnv.format_outputs(outputs, true);
+    /// ```
+    pub fn format_outputs(&self, outputs: Vec<Output>, with_headers: bool) {
         match self.format {
             Format::Pretty => self.write_json(outputs, true),
             Format::Compact => self.write_json(outputs, false),
-            _ => self.write_csv(outputs, is_first).unwrap(),
+            _ => self.write_csv(outputs, with_headers).unwrap(),
         }
     }
 
@@ -123,9 +265,9 @@ impl GNVerify {
         }
     }
 
-    fn write_csv(&self, outputs: Vec<Output>, is_first: bool) -> anyhow::Result<()> {
+    fn write_csv(&self, outputs: Vec<Output>, with_headers: bool) -> anyhow::Result<()> {
         let mut wtr = csv::WriterBuilder::new()
-            .has_headers(is_first)
+            .has_headers(with_headers)
             .from_writer(io::stdout());
         for o in outputs {
             for c in o.to_csv(self.preferred_only) {
