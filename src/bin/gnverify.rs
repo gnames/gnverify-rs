@@ -1,16 +1,23 @@
 use clap::crate_version;
 use crossbeam_channel::{bounded, Receiver, Sender};
 use gnverify::{Format, GNVerify};
+use log::{error, info};
 use std::fs::File;
 use std::io::{self, Read};
 use std::path;
 use std::process;
 use std::thread;
+use stderrlog::{self, Timestamp};
 
 #[macro_use]
 extern crate clap;
 
 fn main() {
+    stderrlog::new()
+        .verbosity(2)
+        .timestamp(Timestamp::Second)
+        .init()
+        .unwrap();
     use clap::App;
     // The YAML file is found relative to the current file, similar to how modules are found
     let yaml = load_yaml!("gnverify.yml");
@@ -26,7 +33,7 @@ fn main() {
                 gnv.format(format);
             }
             Err(err) => {
-                print!("using default format {}: {}", gnv.format.to_string(), err);
+                error!("using default format {}: {}", gnv.format.to_string(), err);
             }
         }
     }
@@ -105,10 +112,13 @@ where
     let mut inputs: Vec<gnverify::Input> = Vec::with_capacity(batch_size);
     let mut fields_num = 0;
 
-    for result in rdr.into_records() {
+    for (i, result) in rdr.into_records().enumerate() {
         if inputs.len() == batch_size {
             in_s.send(inputs).unwrap();
             inputs = Vec::with_capacity(batch_size);
+        }
+        if (i + 1) % 10_000 == 0 {
+            info!("Processed {} rows", i + 1);
         }
         if let Ok(record) = result {
             if fields_num == 0 {
@@ -145,7 +155,7 @@ fn parse_sources(sources: &str) -> Vec<i64> {
         let source = match v.trim().parse::<i64>() {
             Ok(i) => i,
             Err(err) => {
-                print!("Cannot convert source arg '{}' to integer: {}\n", v, err);
+                error!("Cannot convert source '{}' to integer: {}\n", v, err);
                 process::exit(1);
             }
         };

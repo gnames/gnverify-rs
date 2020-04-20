@@ -23,6 +23,8 @@ strum_macros = "0.18"
 atty = "0.2"
 same-file = "1"
 winapi-util = "0.1.4"
+log = "0.4"
+stderrlog = "0.4"
 
 [dependencies.clap]
 version = "2"

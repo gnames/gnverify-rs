@@ -1,6 +1,7 @@
 use super::Input;
 use anyhow::{Context, Result};
 use graphql_client::{GraphQLQuery, Response};
+use log::error;
 
 const GN_INDEX_URL: &str = "http://index.globalnames.org/api/graphql";
 
@@ -29,10 +30,10 @@ pub fn verify(inputs: &Vec<Input>, sources: &Option<Vec<i64>>) -> Result<resolve
     let response_body: Response<resolver::ResponseData> = res.json()?;
 
     if let Some(errors) = response_body.errors {
-        println!("Remove verification returned some errors:");
+        error!("Remote verification contains errors:");
 
         for error in &errors {
-            println!("{:?}", error);
+            error!("{:?}", error);
         }
     }
     let response_data: resolver::ResponseData =

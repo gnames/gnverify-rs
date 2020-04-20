@@ -5,6 +5,7 @@ mod verif;
 use crossbeam_channel::{Receiver, Sender};
 pub use error::GNVerifyError;
 pub use format::Format;
+use log::error;
 use serde_json;
 pub use std::io;
 use std::thread;
@@ -67,8 +68,9 @@ impl GNVerify {
                     if retries < 3 {
                         retries += 1;
                     } else {
-                        let error = Some(format!("{}", err));
-                        return self.bad_outputs(inputs, retries, error);
+                        let err_str = Some(format!("{}", err));
+                        error!("{}", err);
+                        return self.bad_outputs(inputs, retries, err_str);
                     }
                 }
             };
