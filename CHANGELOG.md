@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+## [v0.2.0]
+
+- Add [#7]: Parallell execution of the queries, ability to work
+            with filles of any size.
+
 ## [v0.1.1]
 
 - Fix: make compatible to comiple on Windows
@@ -19,8 +24,11 @@
 
 This document follows [changelog guidelines]
 
-[v0.1.0]: https://github.com/gnames/gnfinder/tree/v0.5.0
+[v0.2.0]: https://github.com/gnames/gnfinder/compare/v0.1.1...v0.2.0
+[v0.1.1]: https://github.com/gnames/gnfinder/compare/v0.1.0...v0.1.1
+[v0.1.0]: https://github.com/gnames/gnfinder/tree/v0.1.0
 
+[#7]: https://github.com/gnames/gnverify/issues/7
 [#6]: https://github.com/gnames/gnverify/issues/6
 [#5]: https://github.com/gnames/gnverify/issues/5
 [#4]: https://github.com/gnames/gnverify/issues/4
