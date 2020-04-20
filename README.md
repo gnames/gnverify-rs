@@ -64,7 +64,7 @@ Download the latest release from [github], untar, and install binary somewhere
 in your path.
 
 ```bash
-tar xvf gnverify-linux-0.1.0.tar.xz
+tar xvf gnverify-linux-0.2.0.tar.xz
 sudo mv gnverify /usr/local/bin
 ```
 
