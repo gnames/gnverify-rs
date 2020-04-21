@@ -82,6 +82,9 @@ in ``cmd`` terminal window. The ``gnverify`` program then will be automatically
 found by Windows operating system when you run its commands from that
 directory.
 
+You can also read more a detailed guide for Windows users in
+[a PDF document][win-pdf].
+
 ### Linux and Mac
 
 Download the latest release from [github], untar, and install binary somewhere
@@ -213,3 +216,4 @@ for further details.
 [dimus]: https://github.com/dimus
 [license]: https://github.com/gnames/gnverify/blob/master/LICENSE
 [winpath]: https://www.computerhope.com/issues/ch000549.htm
+[win-pdf]: https://github.com/gnames/gnverify/blob/master/use-gnverify-windows.pdf
