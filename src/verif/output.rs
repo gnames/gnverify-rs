@@ -12,9 +12,6 @@ trait ToResultData {
 #[derive(Serialize, Debug, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct Output {
-    /// Optional supplied by user ID attached to a name-string.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub id: Option<String>,
     /// Name-string supplied by user for verification.
     pub name: String,
     /// Match type of the best result after verification attempt.
@@ -171,7 +168,6 @@ impl Output {
         let curation_str = item.quality_summary.unwrap_or("".to_owned());
 
         Output {
-            id: item.supplied_id,
             name: item.supplied_input.unwrap(),
             match_type,
             data_sources_num: item.matched_data_sources,
@@ -196,7 +192,6 @@ impl Output {
         let mut res: Vec<OutputCSV> = Vec::with_capacity(len);
         let mut o_csv = OutputCSV {
             kind,
-            supplied_id: self.id.clone(),
             scientific_name: self.name.clone(),
             ..Default::default()
         };
@@ -218,7 +213,6 @@ impl Output {
             for p in pref {
                 let o_csv = OutputCSV {
                     kind: "PreferredMatch".to_owned(),
-                    supplied_id: self.id.clone(),
                     scientific_name: self.name.clone(),
                     matched_name: Some(p.matched_name.clone()),
                     matched_canonical: p.matched_canonical.clone(),

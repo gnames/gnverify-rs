@@ -49,6 +49,10 @@ pub struct GNVerify {
     pub sources: Option<Vec<i64>>,
     /// Normally output would
     pub preferred_only: bool,
+    /// Position of ScientificName field in the document. Default value is 1
+    /// (the first field is 1, not 0). If gnverify verifies names from a txt
+    /// file, it assumes that the text has one name per line, and nothing else.
+    pub name_field: i64,
     /// size of a bach of names sent as a unit for verification to
     /// gnindex.
     pub batch_size: usize,
@@ -61,6 +65,7 @@ impl GNVerify {
     pub fn new() -> Self {
         GNVerify {
             batch_size: 500,
+            name_field: 1,
             ..Default::default()
         }
     }
@@ -83,6 +88,23 @@ impl GNVerify {
         self.sources = Some(sources);
     }
 
+    /// Sets the index of name-string field. For example, if your TSV file
+    /// contains "ID", "ScientificName", "Reference", use name_index 2.
+    ///
+    ///
+    /// ## Example
+    ///
+    /// ```rust
+    /// use gnverify::GNVerify;
+    ///
+    /// let mut gnv = GNVerify::new();
+    /// assert_eq!(gnv.name_field, 1);
+    /// gnv.name_field(3);
+    /// assert_eq!(gnv.name_field, 3);
+    /// ```
+    pub fn name_field(&mut self, name_field: i64) {
+        self.name_field = name_field;
+    }
     /// Sets preferred_only field to true
     ///
     /// ## Example
@@ -244,7 +266,6 @@ impl GNVerify {
         let mut outputs: Vec<Output> = Vec::with_capacity(inputs.len());
         for input in inputs {
             let output = Output {
-                id: input.id.clone(),
                 name: input.name.clone(),
                 retries,
                 error: error.clone(),

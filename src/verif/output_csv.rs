@@ -6,7 +6,6 @@ use serde::Serialize;
 pub struct OutputCSV {
     pub kind: String,
     pub match_type: MatchType,
-    pub supplied_id: Option<String>,
     pub scientific_name: String,
     pub matched_name: Option<String>,
     pub matched_canonical: Option<String>,

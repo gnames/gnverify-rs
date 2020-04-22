@@ -1,0 +1,9 @@
+Kind,MatchType,ScientificName,MatchedName,MatchedCanonical,TaxonId,CurrentName,EditDistance,DataSourceId,DataSourceTitle,ClassificationPath
+PreferredMatch,NoMatch,Musca acuminata,,,,,,,,
+PreferredMatch,NoMatch,Parnus acuminatus,,,,,,,,
+PreferredMatch,NoMatch,Pimelia acuminata,,,,,,,,
+PreferredMatch,PartialExact,Rhinoceros acuminata,Rhinoceros,Rhinoceros,55008929,Rhinoceros,0,1,Catalogue of Life,Animalia|Chordata|Mammalia|Perissodactyla|Rhinocerotidae|Rhinoceros
+PreferredMatch,Exact,Scarabaeus acuminatus,"Scarabaeus acuminatus Lepechin, 1774",Scarabaeus acuminatus,54752846,"Glaphyrus oxypterus (Pallas, 1771)",0,1,Catalogue of Life,Animalia|Arthropoda|Insecta|Coleoptera|Scarabaeoidea|Glaphyridae|Glaphyrus|Glaphyrus oxypterus
+PreferredMatch,PartialExact,Tenebrio acuminatus,Tenebrio,Tenebrio,55038700,Tenebrio,0,1,Catalogue of Life,Animalia|Arthropoda|Insecta|Coleoptera|Tenebrionoidea|Tenebrionidae|Tenebrio
+PreferredMatch,PartialExact,Tenebrio acuminatus,Tenebrio,Tenebrio,55038700,Tenebrio,0,1,Catalogue of Life,Animalia|Arthropoda|Insecta|Coleoptera|Tenebrionoidea|Tenebrionidae|Tenebrio
+PreferredMatch,Exact,Voluta acuminata,"Voluta acuminata Gmelin, 1791",Voluta acuminata,54568180,"Vexillum acuminatum (Gmelin, 1791)",0,1,Catalogue of Life,Animalia|Mollusca|Gastropoda|Neogastropoda|Turbinelloidea|Costellariidae|Vexillum|Vexillum acuminatum

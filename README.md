@@ -8,15 +8,16 @@ biodiversity [Data Sources][data_source_ids]
 
 * [Features](#features)
 * [Installation](#installation)
-  * [Compile](#compile)
   * [MS Windows](#ms-windows)
   * [Linux and Mac](#linux-and-mac)
+  * [Compile from source](#compile-from-source)
 * [Usage](#usage)
   * [One name-string](#one-name-string)
   * [Many name-strings in a file](#many-name-strings-in-a-file)
   * [Options and flags](#options-and-flags)
     * [help](#help)
     * [version](#version)
+    * [name_field](#name_field)
     * [format](#format)
     * [sources](#sources)
     * [preferred_only](#preferred_only)
@@ -53,12 +54,6 @@ biodiversity [Data Sources][data_source_ids]
 
 ## Installation
 
-### Compile
-
-```bash
-cargo install gnverify
-```
-
 ### MS Windows
 
 Download the latest release from [github], unzip.
@@ -94,6 +89,14 @@ in your path.
 tar xvf gnverify-linux-0.2.0.tar.xz
 # or tar xvf gnverify-mac-0.2.0.tar.gz
 sudo mv gnverify /usr/local/bin
+```
+
+### Compile from source
+
+Install Rust according to their [installation instructions][rust-install]
+
+```bash
+cargo install gnverify
 ```
 
 ## Usage
@@ -147,6 +150,26 @@ gnverify
 gnverify -V
 # or
 gnverify --version
+```
+
+#### name_field
+
+If the name-string's ScientificName field is not the first in your data,
+the **``name-field`` flag is very important**. Set it to the position of
+the name-string field.
+
+For example, if your file has the following fields:
+
+```
+"ID", "Taxon_ID", "Name", "Reference", "Notes"
+```
+
+and the "Name" field contains the names you want to verify, use
+
+```bash
+gnverify -n 3
+# or
+gnverify --name-field=3
 ```
 
 #### format
@@ -217,3 +240,4 @@ for further details.
 [license]: https://github.com/gnames/gnverify/blob/master/LICENSE
 [winpath]: https://www.computerhope.com/issues/ch000549.htm
 [win-pdf]: https://github.com/gnames/gnverify/blob/master/use-gnverify-windows.pdf
+[rust-install]: https://www.rust-lang.org/tools/install

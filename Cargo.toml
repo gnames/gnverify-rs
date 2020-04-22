@@ -6,7 +6,7 @@ documentation = "https://docs.rs/gnverify/"
 homepage = "https://github.com/gnames/gnverify"
 repository = "https://github.com/gnames/gnverify"
 license = "MIT"
-version = "0.2.1"
+version = "0.3.0"
 authors = ["Dmitry Mozzherin <dmozzherin@gmail.com>"]
 edition = "2018"
 

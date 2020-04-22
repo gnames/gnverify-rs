@@ -38,6 +38,9 @@ fn main() {
             }
         }
     }
+    if let Some(name_index) = matches.value_of("name_field") {
+        gnv.name_field(parse_name_index(name_index))
+    }
     if let Some(srs) = matches.value_of("sources") {
         gnv.sources(parse_sources(srs));
     }
@@ -80,6 +83,7 @@ where
     let gnv_clone1 = gnv.clone();
     let gnv_clone2 = gnv.clone();
     let batch_size = gnv.batch_size;
+    let name_field = gnv.name_field;
     thread::spawn(move || gnv_clone1.verify_stream(in_r, out_s));
     thread::spawn(move || process_outputs(gnv_clone2, out_r, done_s));
 
@@ -88,7 +92,7 @@ where
         .has_headers(false)
         .from_reader(r);
 
-    prepare_inputs(rdr, in_s, batch_size);
+    prepare_inputs(rdr, in_s, batch_size, name_field);
     done_r.recv().unwrap();
     Ok(())
 }
@@ -106,13 +110,17 @@ fn process_outputs(
     done_s.send(true).unwrap();
 }
 
-fn prepare_inputs<R>(rdr: csv::Reader<R>, in_s: Sender<Vec<gnverify::Input>>, batch_size: usize)
-where
+fn prepare_inputs<R>(
+    rdr: csv::Reader<R>,
+    in_s: Sender<Vec<gnverify::Input>>,
+    batch_size: usize,
+    name_field: i64,
+) where
     R: Read,
 {
     let mut inputs: Vec<gnverify::Input> = Vec::with_capacity(batch_size);
-    let mut fields_num = 0;
     let time_start = Instant::now();
+    let mut good_rows = 0;
 
     for (i, result) in rdr.into_records().enumerate() {
         if inputs.len() == batch_size {
@@ -125,32 +133,38 @@ where
             info!("Processed {} rows, {:.0} names/sec", i + 1, speed);
         }
         if let Ok(record) = result {
-            if fields_num == 0 {
-                fields_num = record.len();
+            if (i + 1) / (good_rows + 1) > 100 {
+                error!("Too many bad rows. Make sure you set name_field to the right number");
+                process::exit(1);
             }
-            match fields_num {
-                0 => (),
-                1 => {
-                    if record.len() > 0 {
-                        inputs.push(gnverify::Input {
-                            id: None,
-                            name: record[0].to_owned(),
-                        });
-                    }
-                }
-                _ => {
-                    if record.len() > 1 {
-                        inputs.push(gnverify::Input {
-                            id: Some(record[0].to_owned()),
-                            name: record[1].to_owned(),
-                        });
-                    }
-                }
+            if record.len() as i64 >= name_field {
+                good_rows += 1;
+                inputs.push(gnverify::Input {
+                    id: None,
+                    name: record[name_field as usize - 1].to_owned(),
+                });
             };
         };
     }
     in_s.send(inputs).unwrap();
     drop(in_s);
+}
+
+fn parse_name_index(index_str: &str) -> i64 {
+    if let Ok(name_index) = index_str.trim().parse::<i64>() {
+        match name_index {
+            i if name_index > 0 => return i,
+            _ => {
+                error!("Enter number 1 or larger for name_field");
+                process::exit(1);
+            }
+        }
+    }
+    error!(
+        "Cannot parse name_field index '{}', enter number 1 or larger",
+        index_str
+    );
+    process::exit(1);
 }
 
 fn parse_sources(sources: &str) -> Vec<i64> {

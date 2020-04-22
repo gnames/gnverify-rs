@@ -3,6 +3,11 @@ about: Verifies scientific names agains many sources.
 args:
     - INPUT:
         help: A name-string or file to verify
+    - name_field:
+        short: n
+        long: name_field
+        help: Set position of ScientificName field, the first field is "1" (DEFAULT)
+        takes_value: true
     - preferred_only:
         short: p
         long: preferred_only

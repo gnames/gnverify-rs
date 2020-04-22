@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+## [v0.3.0]
+
+This version introduces backwards incompatibility. The ID field is removed
+from input and from output. Now the verification and resolution of name-strings
+does not include 'Supplied ID'
+
+- Add [#11]: Make finding the name-string field more flexible.
+             Remove the supplied ID from input and results.
 - Add [#10]: PDF guide for Windows users
 
 ## [v0.2.1]
