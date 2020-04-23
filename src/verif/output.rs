@@ -201,6 +201,7 @@ impl Output {
             o_csv.taxon_id = Some(best.taxon_id.clone());
             o_csv.current_name = best.current_name.clone();
             o_csv.edit_distance = Some(best.edit_distance);
+            o_csv.synonym = best.synonym;
             o_csv.data_source_id = Some(best.data_source_id);
             o_csv.data_source_title = Some(trim(best.data_source_title.clone()));
             o_csv.classification_path = best.classification_path.clone();
@@ -219,6 +220,7 @@ impl Output {
                     taxon_id: Some(p.taxon_id.clone()),
                     current_name: p.current_name.clone(),
                     edit_distance: Some(p.edit_distance),
+                    synonym: p.synonym,
                     data_source_id: Some(p.data_source_id),
                     data_source_title: Some(trim(p.data_source_title.clone())),
                     classification_path: p.classification_path.clone(),
