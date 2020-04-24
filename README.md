@@ -77,7 +77,7 @@ in ``cmd`` terminal window. The ``gnverify`` program then will be automatically
 found by Windows operating system when you run its commands from that
 directory.
 
-You can also read more a detailed guide for Windows users in
+You can also read a more detailed guide for Windows users in
 [a PDF document][win-pdf].
 
 ### Linux and Mac
