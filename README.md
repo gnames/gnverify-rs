@@ -119,8 +119,7 @@ gnverify "Monohamus galloprovincialis"
 gnverify /path/to/names.tsv
 ```
 The app assumes that a file either contains a simple list of names, one per line,
-of a tab-separated list where the first column is an `id` associated with a
-name_string, and the second is the name-string itself. You can find examples
+of a tab-separated list where the first field is the name-string itself. You can find examples
 of such files in the project's [test directory].
 
 It is also possible to feed data via STDIN:
