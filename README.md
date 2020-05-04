@@ -59,7 +59,7 @@ biodiversity [Data Sources][data_source_ids]
 Download the latest release from [github], unzip.
 
 One possible way would be to create a default folder for executables and place
-``gnveriry`` there.
+``gnverify`` there.
 
 Use ``Windows+R`` keys
 combination and type "``cmd``". In the appeared terminal window type:
