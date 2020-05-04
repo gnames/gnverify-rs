@@ -49,7 +49,7 @@ biodiversity [Data Sources][data_source_ids]
 * If a Data Source provides classification for a name, it will be returned in
   the output.
 * Works for checking just one name-string, or multiple ones written in a file.
-* Supports feeding data vie pips of an operating system. This feature allows
+* Supports feeding data via pipes of an operating system. This feature allows
   to chain the program together with other tools.
 
 ## Installation
