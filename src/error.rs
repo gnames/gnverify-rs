@@ -7,5 +7,8 @@ pub enum GNVerifyError {
     /// converted to a Format type. In such case the default format
     /// (Format::CSV) wil be used.
     #[error("cannot convert {format:?} to an output format value")]
-    InvalidFormatString { format: String },
+    InvalidFormatString {
+        /// Contains the string supplied format creation.
+        format: String,
+    },
 }

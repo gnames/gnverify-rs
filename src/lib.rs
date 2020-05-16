@@ -1,4 +1,3 @@
-//#![warn(missing_docs)]
 //! Takes a name or a list of names and verifies them against a variety of
 //! biodiversity [Data Sources][data_source_ids]
 //!
@@ -18,7 +17,7 @@
 //!
 //! [data_source_ids]: http://resolver.globalnames.org/data_sources
 //!
-
+#[warn(missing_debug_implementations, rust_2018_idioms, missing_docs)]
 mod error;
 /// format determines output format for name verification. It can be set to
 /// CSV, JSON, and Pretty JSON.
