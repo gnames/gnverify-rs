@@ -43,12 +43,12 @@ does not include 'Supplied ID'
 
 This document follows [changelog guidelines]
 
-[v0.3.1]: https://github.com/gnames/gnfinder/compare/v0.3.0...v0.3.1
-[v0.3.0]: https://github.com/gnames/gnfinder/compare/v0.2.1...v0.3.0
-[v0.2.1]: https://github.com/gnames/gnfinder/compare/v0.2.0...v0.2.1
-[v0.2.0]: https://github.com/gnames/gnfinder/compare/v0.1.1...v0.2.0
-[v0.1.1]: https://github.com/gnames/gnfinder/compare/v0.1.0...v0.1.1
-[v0.1.0]: https://github.com/gnames/gnfinder/tree/v0.1.0
+[v0.3.1]: https://github.com/gnames/gnverify/compare/v0.3.0...v0.3.1
+[v0.3.0]: https://github.com/gnames/gnverify/compare/v0.2.1...v0.3.0
+[v0.2.1]: https://github.com/gnames/gnverify/compare/v0.2.0...v0.2.1
+[v0.2.0]: https://github.com/gnames/gnverify/compare/v0.1.1...v0.2.0
+[v0.1.1]: https://github.com/gnames/gnverify/compare/v0.1.0...v0.1.1
+[v0.1.0]: https://github.com/gnames/gnverify/tree/v0.1.0
 
 [#12]: https://github.com/gnames/gnverify/issues/12
 [#11]: https://github.com/gnames/gnverify/issues/11
