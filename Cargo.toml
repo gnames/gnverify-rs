@@ -2,6 +2,7 @@
 name = "gnverify"
 description = "Takes a scientific name or a list of names and verifies them against a variety of biodiversity Data Sources"
 readme = "README.md"
+keywords = ["biology", "biodiversity", "bioinformatics", "scientific names"]
 documentation = "https://docs.rs/gnverify/"
 homepage = "https://github.com/gnames/gnverify"
 repository = "https://github.com/gnames/gnverify"
