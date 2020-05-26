@@ -173,7 +173,7 @@ gnverify --name-field=3
 
 #### format
 
-Allows to pick a format for output. Supported format are
+Allows to pick a format for output. Supported formats are
 
 * compact: one-liner JSON.
 * pretty: prettified JSON with new lines and tabs for easier reading.
