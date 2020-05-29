@@ -119,8 +119,10 @@ gnverify "Monohamus galloprovincialis"
 gnverify /path/to/names.tsv
 ```
 The app assumes that a file either contains a simple list of names, one per line,
-of a tab-separated list where the first field is the name-string itself. You can find examples
-of such files in the project's [test directory].
+of a tab-separated list where the first field is the name-string itself. If the
+name-string field is not the first, use the 
+[name-field](https://github.com/gnames/gnverify#name_field) parameter. 
+You can find examples of input files in the project's [test directory].
 
 It is also possible to feed data via STDIN:
 
