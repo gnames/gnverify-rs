@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Add [#14]: Accomodate gnames as a verification resource.
+
 ## [v0.3.1]
 
 - Add [#12]: Synonym field to CSV format. EditDistance field moved.
