@@ -46,16 +46,18 @@ pub struct GNVerify {
     /// of these sources, the matching result will always be returned in preferred_results
     /// section of the output.
     pub sources: Option<Vec<i64>>,
-    /// Normally output would
+    /// Normally output would give the best result together with preferred restuls.
+    /// Sometimes a user would like to concentrate exclusively on a data source.
+    /// If preferred_only is true, best result is not returned.
     pub preferred_only: bool,
     /// Position of ScientificName field in the document. Default value is 1
     /// (the first field is 1, not 0). If gnverify verifies names from a txt
     /// file, it assumes that the text has one name per line, and nothing else.
     pub name_field: i64,
-    /// size of a bach of names sent as a unit for verification to
+    /// The size of a bach of names sent as a unit for verification to
     /// gnindex.
     pub batch_size: usize,
-    /// sets format of the final output. It can be CSV, JSON, or Pretty JSON.
+    /// It sets format of the final output. It can be CSV, JSON, or Pretty JSON.
     pub format: Format,
 }
 
